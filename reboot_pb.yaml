@@ -1,0 +1,38 @@
+---
+- name: Run "Router Reboot" via Telnet module
+  hosts: TESTCUST
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: Run router reboot
+      ansible.netcommon.telnet:
+        host: "{{ ansible_host }}"
+        port: "{{ ansible_port | default(23) }}"
+        user: "{{ ansible_user }}"
+        password: "{{ ansible_password }}"
+        # Match prompts even if there are escape codes or spaces
+        login_prompt: "(?m)Username:\\s*$"
+        password_prompt: "(?m)Password:\\s*$"
+        # Match the actual device prompt after login
+        prompts:
+          - "(?m)^[A-Za-z0-9._-]+[>#]\\s*$" # this matches > or #
+          - "(?m)Password:\\s*$"           #this will match for enable pw 
+          - "(?m)^[A-Za-z0-9._-]+[>#]\\s*$"    # this will match > or # specifically # for enable status
+          - "(?m)^.*Save System Configuration.*$" #Will match anything as long as it includes Save System Configuration
+          - "(?m)^.*You are about to reboot the system.*$" #Same
+        command:
+          - enable
+          - "{{ ansible_enable_password}}"
+          - terminal length 0
+          - reload
+          - n
+          - y
+#        timeout: 10
+      register: Router_reboot_output    #custom variable you choose for the output of your commands. 
+
+    - name: Router_reboot_output
+      debug:
+        var: Router_reboot_output.stdout_lines  #output of commands placed in terminal (use earlier register variable)
+
+
