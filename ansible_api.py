@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, abort
 
 app = Flask(__name__)
 
-# If I want to use tokens I can use command "export API_TOKEN=use_this_token!!!"
+# If I want to use tokens (static) I can use command "export API_TOKEN=use_this_token"
 API_TOKEN = os.environ.get("API_TOKEN") 
 
 
